@@ -118,7 +118,7 @@ class GraphManager:
                     self.get_best_fit_next(n).connection_handler.send_message(Linearize(n.address).to_json())
                     del self.connected_nodes[n.address] #Possible source of dictionary size changes during iteration for future problems!!!
 
-    def handle_nodes(self): #TODO fix No message output
+    def handle_nodes(self):
         while True:
             ConnectionHandler.received_message_event.wait()
             self.handle_nodes_lock.acquire()

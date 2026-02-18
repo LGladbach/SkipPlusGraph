@@ -28,7 +28,7 @@ class Range:
         self.borders_0 = (Range.prevent_nil_border(self.border_nodes_0[0], True), Range.prevent_nil_border(self.border_nodes_0[1], False))
         self.borders_1 = (Range.prevent_nil_border(self.border_nodes_1[0], True), Range.prevent_nil_border(self.border_nodes_1[1], False))
 
-    def update_range(self, n:Node) -> list[Node]: #TODO change parameter to node
+    def update_range(self, n:Node) -> list[Node]:
         dropped_list = []
         self.calculate_range_borders()
         if n.bitstring[0:self.level] != self.parent_bitstring[0:self.level]:
@@ -46,7 +46,7 @@ class Range:
                 self.connected_nodes.append(n)
             if n.bitstring[self.level] == "0":
                 if self.borders_0[0] < n.position < self.parent:
-                    self.border_nodes_0[0] = n #TODO check marked issue
+                    self.border_nodes_0[0] = n
                 elif self.borders_0[1] > n.position > self.parent:
                     self.border_nodes_0[1] = n
             else:
