@@ -76,8 +76,6 @@ class GraphManager:
             for r in self.ranges:
                 r.linearize_range()
             self.handle_nodes_lock.release()
-            for r in self.ranges:
-                r.print_range()
 
     def handle_node_failure(self, address:tuple[str, int]):
         for r in self.ranges:
@@ -138,9 +136,7 @@ class GraphManager:
                     if package.package_type == "linearize":
                         self.update_ranges(package)
                     elif package.package_type == "flood":
-                        print(package.payload)
                         if package.depth > 0:
-                            print(package.depth)
                             for n in self.connected_nodes.values():
                                 if n[0].connection_handler is not None and not n[0].connection_handler.failed_event:
                                     n[0].connection_handler.send_message(Flood(package.payload, package.depth - 1, package.origin).to_json()) #TODO prevent from pinging back
