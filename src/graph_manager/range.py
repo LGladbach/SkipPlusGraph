@@ -129,9 +129,12 @@ class Range:
             self.border_nodes_1[0].connection_handler.send_message(Linearize(self.border_nodes_0[1].address).to_json())
 
     def delete_node_from_range(self, address:tuple[str, int]):
+        delete_list = []
         for n in self.connected_nodes:
             if n.address == address:
-                self.connected_nodes.remove(n)
+                delete_list.append(n)
+        for n in delete_list:
+            self.connected_nodes.remove(n)
         if self.border_nodes_0[0] is not None:
             if address == self.border_nodes_0[0].address:
                 self.border_nodes_0[0] = None

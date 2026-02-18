@@ -63,10 +63,15 @@ class GraphManager:
                 self.contact_nodes.append(n)
                 self.waiting_for_address.remove(n)
             self.contact_nodes_lock.release()
+            delete_list = []
             for n in self.connected_nodes.values():
-                if n[0] is not None: #TODO weird fix
+                if n[0].connection_handler is not None:
                     if n[0].connection_handler.failed_event:
-                        self.handle_node_failure(n[0].address)
+                        delete_list.append(n[0].address)
+                else:
+                    delete_list.append(n[0].address)
+            for a in delete_list:
+                self.handle_node_failure(a)
             for r in self.ranges:
                 r.linearize_range()
             self.handle_nodes_lock.release()
@@ -74,11 +79,9 @@ class GraphManager:
                 r.print_range()
 
     def handle_node_failure(self, address:tuple[str, int]):
-        self.handle_nodes_lock.acquire()
         for r in self.ranges:
             r.delete_node_from_range(address)
         del self.connected_nodes[address]
-        self.handle_nodes_lock.release()
 
     def get_node_from_address(self, address:tuple[str, int]) -> (Node, bool):
         n = self.connected_nodes.get(address, None)
