@@ -5,6 +5,7 @@ import time
 from src.graph_manager.bitstring_generator import HashGenerator
 from src.graph_manager.node import Node
 from src.graph_manager.range import Range
+from src.parsing.flood import Flood
 from src.parsing.linearize import Linearize
 from src.parsing.parser import Parser
 from src.server_structure.acceptor import Acceptor
@@ -136,6 +137,13 @@ class GraphManager:
                     package = Parser.parse_package(msg)
                     if package.package_type == "linearize":
                         self.update_ranges(package)
+                    elif package.package_type == "flood":
+                        print(package.payload)
+                        if package.depth > 0:
+                            print(package.depth)
+                            for n in self.connected_nodes.values():
+                                if n[0].connection_handler is not None and not n[0].connection_handler.failed_event:
+                                    n[0].connection_handler.send_message(Flood(package.payload, package.depth - 1, package.origin).to_json()) #TODO prevent from pinging back
                     elif package.package_type != "none":
                         self.packages_received_lock.acquire()
                         self.packages_received.append(package)
@@ -149,6 +157,12 @@ class GraphManager:
         package = self.packages_received.pop(0)
         self.packages_received_lock.release()
         return package
+
+    def flood(self, payload:str):
+        package = Flood(payload, self.depth * 3, self.address)
+        for n in self.connected_nodes.values():
+            if n[0].connection_handler is not None and not n[0].connection_handler.failed_event:
+                n[0].connection_handler.send_message(package.to_json())
 
     def get_best_fit_next(self, node:Node) -> Node:
         best_fit_bitstring = -1

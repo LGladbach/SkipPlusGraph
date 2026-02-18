@@ -1,12 +1,13 @@
 import json
 
+from src.parsing.flood import Flood
 from src.parsing.linearize import Linearize
 from src.parsing.package import Package
 from src.parsing.package_number import PackageNumber
 
 
 class Parser:
-    package_parser = {"package_number":PackageNumber, "linearize":Linearize}
+    package_parser = {"package_number":PackageNumber, "linearize":Linearize, "flood":Flood}
     @staticmethod
     def parse_package(package:str) -> Package:
         try:
