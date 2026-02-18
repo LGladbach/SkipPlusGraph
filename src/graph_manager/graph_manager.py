@@ -19,6 +19,7 @@ class GraphManager:
         self.hash_value = HashGenerator.generate_hash_value(address)
         self.address = address
         print(self.bitstring)
+        print(self.hash_value)
         self.depth = min(depth, 128)
         self.timeout_time = timeout
         self.waiting_for_address = []
@@ -63,13 +64,14 @@ class GraphManager:
                 self.waiting_for_address.remove(n)
             self.contact_nodes_lock.release()
             for n in self.connected_nodes.values():
-                if n[0].connection_handler.failed_event:
-                    self.handle_node_failure(n[0].address)
+                if n[0] is not None: #TODO weird fix
+                    if n[0].connection_handler.failed_event:
+                        self.handle_node_failure(n[0].address)
             for r in self.ranges:
                 r.linearize_range()
             self.handle_nodes_lock.release()
-            #for r in self.ranges:
-            #    r.print_range()
+            for r in self.ranges:
+                r.print_range()
 
     def handle_node_failure(self, address:tuple[str, int]):
         self.handle_nodes_lock.acquire()
@@ -100,7 +102,6 @@ class GraphManager:
             return Node(linearize_package.address, None)
 
     def update_ranges(self, linearize_package:Linearize):
-        print(linearize_package.address)
         node, found = self.get_node_from_address(linearize_package.address)
         if node is not None:
             if not found:
@@ -113,7 +114,6 @@ class GraphManager:
                 dropped_nodes.extend(level_range.update_range(node))
             for n in dropped_nodes:
                 self.connected_nodes[n.address][1] -= 1
-                print(self.connected_nodes[n.address][1])
                 if self.connected_nodes[n.address][1] == 0:
                     self.get_best_fit_next(n).connection_handler.send_message(Linearize(n.address).to_json())
                     del self.connected_nodes[n.address] #Possible source of dictionary size changes during iteration for future problems!!!
@@ -128,7 +128,6 @@ class GraphManager:
                 msgs.extend(n[0].connection_handler.get_messages())
             for n in self.contact_nodes:
                 msgs.extend(n.connection_handler.get_messages())
-            print(msgs)
             if len(msgs) > 0:
                 for msg in msgs:
                     package = Parser.parse_package(msg)

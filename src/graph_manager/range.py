@@ -31,7 +31,7 @@ class Range:
     def update_range(self, n:Node) -> list[Node]: #TODO change parameter to node
         dropped_list = []
         self.calculate_range_borders()
-        if n.bitstring[0:self.level - 1] != self.parent_bitstring[0:self.level - 1]:
+        if n.bitstring[0:self.level] != self.parent_bitstring[0:self.level]:
             dropped_list.append(n)
         elif n.position > self.borders_0[1] and n.position > self.borders_1[1] or n.position < self.borders_0[0] and n.position < self.borders_1[0]:
             dropped_list.append(n)
@@ -64,16 +64,12 @@ class Range:
         range_borders = []
         if min(self.prevent_nil_border(self.border_nodes_0[0], True), self.prevent_nil_border(self.border_nodes_1[0], True)) > 0:
             range_borders.append(min(self.prevent_nil_border(self.border_nodes_0[0], True), self.prevent_nil_border(self.border_nodes_1[0], True)))
-        elif self.prevent_nil_border(self.border_nodes_0[0], True) == self.prevent_nil_border(self.border_nodes_1[0], True) == 0:
-            range_borders.append(0.0)
         else:
-            range_borders.append(max(self.prevent_nil_border(self.border_nodes_0[0], True), self.prevent_nil_border(self.border_nodes_1[0], True)))
+            range_borders.append(0.0)
         if max(self.prevent_nil_border(self.border_nodes_0[1], False), self.prevent_nil_border(self.border_nodes_1[1], False)) < 1:
             range_borders.append(max(self.prevent_nil_border(self.border_nodes_0[1], False), self.prevent_nil_border(self.border_nodes_1[1], False)))
-        elif self.prevent_nil_border(self.border_nodes_0[1], False) == self.prevent_nil_border(self.border_nodes_1[1], False) == 1:
-            range_borders.append(1.0)
         else:
-            range_borders.append(min(self.prevent_nil_border(self.border_nodes_0[1], False), self.prevent_nil_border(self.border_nodes_1[1], False)))
+            range_borders.append(1.0)
         return range_borders
 
     def cleanup_range(self) -> list[Node]:
@@ -150,4 +146,12 @@ class Range:
                 self.border_nodes_1[1] = None
 
     def print_range(self):
+        print("-------------------------------------------------------------------------------------------------------")
+        print(self.level)
+        print("Range borders 0: " + str(self.borders_0))
+        print("Range borders 1: " + str(self.borders_1))
+        print("Total borders: " + str(self.range_borders()))
+        print("Border nodes 0: " + str([(n.position, n.bitstring[0:2]) for n in self.border_nodes_0 if n is not None]))
+        print("Border nodes 1: " + str([(n.position, n.bitstring[0:2]) for n in self.border_nodes_1 if n is not None]))
         print([n.address for n in self.connected_nodes])
+        print("-------------------------------------------------------------------------------------------------------")
